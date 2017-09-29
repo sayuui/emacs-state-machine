@@ -119,8 +119,9 @@
                (> (length triggers) 0))
     (error "state-machine-get: TRIGGERS is not a list of triggers"))
 
-  (let ((--state    (state-machine-initial-state state-machine))
-        (--triggers triggers)
+  (let ((--test-function (state-machine-test-function state-machine))
+        (--state         (state-machine-initial-state state-machine))
+        (--triggers      triggers)
         (--trigger))
     (while (and --triggers
                 --state)
@@ -129,7 +130,7 @@
       (setq --state
             (state-machine-state-next --state
                                       --trigger
-                                      :test 'eq)))
+                                      :test --test-function)))
     --state))
 
 (defun state-machine-excite (state-machine trigger)
