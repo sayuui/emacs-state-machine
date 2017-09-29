@@ -141,7 +141,10 @@ KEYSTROKE must be a valid keystroke."
      ((null --callable)
       t)
      ((functionp --callable)
-      (funcall --callable))
+      (if (commandp --callable)
+          (call-interactively --callable)
+        (funcall --callable))
+      )
      (t nil))))
 
 (provide 'state-machine--state)
