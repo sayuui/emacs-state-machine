@@ -33,6 +33,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'state-machine--state)
 
 (defconst --state-machine-identifier (cl-gensym "state-machine-")
   "Non-interned identifier for state machine objects.")
