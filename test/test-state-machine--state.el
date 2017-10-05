@@ -144,7 +144,21 @@
         (expect (state-machine-state-p (state-machine-state-next --state-1
                                                                  1))
                 :to-be t)
-        )))
+        ))
+
+    (it "Can replace state"
+      (let ((--state-1 (state-machine-state-create))
+            (--state-2 (state-machine-state-create :callable 'symbolp))
+            (--state-3 (state-machine-state-create :callable 'functionp)))
+        (state-machine-state-next --state-1
+                                  1
+                                  :set --state-2)
+        (state-machine-state-next --state-1
+                                  1
+                                  :set --state-3)
+        (expect (state-machine-state-next --state-1
+                                          1)
+                :to-be --state-3))))
 
   (describe "state-machine-state-callable"
     (describe "Raises an error"

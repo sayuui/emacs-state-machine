@@ -129,7 +129,7 @@ KEYSTROKE must be a valid keystroke."
     (if (not next-state)
         (cdr --found)
       (if --found
-          (setcdr --found state)
+          (setcdr --found next-state)
         (setf (nth 4 state)
               (cons `(,trigger . ,next-state) --next-states)))
       next-state)))

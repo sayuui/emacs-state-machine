@@ -87,8 +87,9 @@
     (error "state-machine-add: TRIGGERS is not a list of triggers"))
 
   (let ((--test-function (state-machine-test-function state-machine))
-        (--state      (state-machine-initial-state state-machine))
-        (--triggers   triggers)
+        (--state         (state-machine-initial-state state-machine))
+        (--triggers      (butlast triggers))
+        (--last-trigger  (car (last triggers)))
         (--prev-state)
         (--trigger))
     (while --triggers
@@ -104,11 +105,13 @@
                --prev-state
                --trigger
                :test --test-function
-               :set  (state-machine-state-create :callable (if --triggers
-                                                               nil
-                                                             callable)
-                                                 :end      (and (not --triggers)
-                                                                (not (null end-state))))))))))
+               :set  (state-machine-state-create)))))
+
+    (state-machine-state-next --state
+                              --last-trigger
+                              :set  (state-machine-state-create :callable callable
+                                                                :end      (not (null end-state)))
+                              :test --test-function)))
 
 (defun state-machine-get (state-machine triggers)
   "Get state of STATE-MACHINE associated with TRIGGERS"
@@ -150,6 +153,14 @@
         (unless --initial-state
           (setq --initial-state (state-machine-initial-state state-machine)))
         (setf (nth 2 state-machine) --initial-state)))))
+
+(defun state-machine-prefix-p (state-machine trigger)
+  "Return t if trigger is a prefix for current state machine"
+  (unless (state-machine-p state-machine)
+    (error "state-machine-prefix-p: STATE-MACHINE is not valid"))
+
+  (not (null (state-machine-get state-machine
+                                (list trigger)))))
 
 (provide 'state-machine)
 ;;; state-machine.el ends here

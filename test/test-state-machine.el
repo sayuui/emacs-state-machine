@@ -173,7 +173,28 @@
                 :to-be nil)
         (expect (state-machine-state-end-p (state-machine-get --sm
                                                               '(1 2)))
-                :to-be t))))
+                :to-be t)))
+
+    (it "Can replace state if it's already exists"
+      (let* ((--sm       (state-machine-create))
+             (--sync     0)
+             (--lambda-1 (lambda ()
+                           (setq --sync 1)))
+             (--lambda-2 (lambda ()
+                           (setq --sync 2))))
+        (state-machine-add --sm
+                           '(1 2 3)
+                           --lambda-1
+                           :end)
+        (state-machine-add --sm
+                           '(1 2 3)
+                           --lambda-2
+                           :end)
+        (state-machine-excite --sm 1)
+        (state-machine-excite --sm 2)
+        (state-machine-excite --sm 3)
+        (expect --sync
+                :to-be 2))))
 
   (describe "state-machine-current-state"
     (it "Raises an error if first arg is not a state"
@@ -241,6 +262,32 @@
         (state-machine-excite --sm 2)
         (expect (state-machine-current-state --sm)
                 :to-be (state-machine-initial-state --sm))))
+    )
+
+  (describe "state-machine-prefix-p"
+    (it "Raises an error when first arg is not state machine"
+      (expect (state-machine-prefix-p 1
+                                      'a)
+              :to-throw))
+
+    (it "Return t if trigger leads to a prefix state"
+      (let ((--sm (state-machine-create)))
+        (state-machine-add --sm
+                           '(a r s)
+                           nil)
+        (state-machine-add --sm
+                           '(r s t)
+                           nil)
+        (expect (state-machine-prefix-p --sm
+                                        'a)
+                :to-be t)
+        (expect (state-machine-prefix-p --sm
+                                        'r)
+                :to-be t)
+        (expect (state-machine-prefix-p --sm
+                                        's)
+                :to-be nil)
+        ))
     )
   )
 
