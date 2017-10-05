@@ -231,8 +231,7 @@
         (state-machine-excite sm 4)
         (expect (eq (state-machine-current-state sm)
                     (state-machine-get sm '(1 2 3 4)))
-                :to-be t)
-        ))
+                :to-be t)))
 
     (it "When end state is achieved, calls its' callable."
       (let* ((--sync   nil)
@@ -262,6 +261,28 @@
         (state-machine-excite --sm 2)
         (expect (state-machine-current-state --sm)
                 :to-be (state-machine-initial-state --sm))))
+
+    (it "When exciting failed, changes current state to initial"
+      (let ((--sm (state-machine-create)))
+        (state-machine-add --sm '(1 2) nil :end)
+        (state-machine-excite --sm 1)
+        (state-machine-excite --sm 3)
+        (expect (state-machine-current-state --sm)
+                :to-be (state-machine-initial-state --sm))))
+
+    (it "Returns nil, if exciting was failed"
+      (let ((--sm (state-machine-create)))
+        (state-machine-add --sm '(1 2) nil :end)
+        (expect (state-machine-excite --sm 3)
+                :to-be nil)
+        (expect (state-machine-excite --sm 1)
+                :to-be t)
+        (expect (state-machine-excite --sm 4)
+                :to-be nil)
+        (expect (state-machine-excite --sm 1)
+                :to-be t)
+        (expect (state-machine-excite --sm 2)
+                :to-be t)))
     )
 
   (describe "state-machine-prefix-p"

@@ -145,14 +145,19 @@
                                            trigger
                                            :test (state-machine-test-function state-machine)))
         (--initial-state))
-    (when --state
-      (if (not (state-machine-state-end-p --state))
-          (setf (nth 2 state-machine) --state)
-        (state-machine-state-call --state)
-        (setq --initial-state (state-machine-state-fallback --state))
-        (unless --initial-state
-          (setq --initial-state (state-machine-initial-state state-machine)))
-        (setf (nth 2 state-machine) --initial-state)))))
+    (if --state
+        (progn
+          (if (not (state-machine-state-end-p --state))
+              (setf (nth 2 state-machine) --state)
+            (state-machine-state-call --state)
+            (setq --initial-state (state-machine-state-fallback --state))
+            (unless --initial-state
+              (setq --initial-state (state-machine-initial-state state-machine)))
+            (setf (nth 2 state-machine) --initial-state))
+          t)
+      (setf (nth 2 state-machine)
+            (state-machine-initial-state state-machine))
+      nil)))
 
 (defun state-machine-prefix-p (state-machine trigger)
   "Return t if trigger is a prefix for current state machine"
