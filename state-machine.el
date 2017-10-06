@@ -137,7 +137,8 @@
     --state))
 
 (defun state-machine-excite (state-machine trigger)
-  "Excite state machine means changing it's current state."
+  "Excite state machine means changing it's current state.
+Returns t if next state is not nil and is not an end state."
   (unless (state-machine-p state-machine)
     (error "state-machine-excite: STATE-MACHINE is not valid"))
 
@@ -148,13 +149,15 @@
     (if --state
         (progn
           (if (not (state-machine-state-end-p --state))
-              (setf (nth 2 state-machine) --state)
+              (progn
+                (setf (nth 2 state-machine) --state)
+                t)
             (state-machine-state-call --state)
             (setq --initial-state (state-machine-state-fallback --state))
             (unless --initial-state
               (setq --initial-state (state-machine-initial-state state-machine)))
-            (setf (nth 2 state-machine) --initial-state))
-          t)
+            (setf (nth 2 state-machine) --initial-state)
+            nil))
       (setf (nth 2 state-machine)
             (state-machine-initial-state state-machine))
       nil)))

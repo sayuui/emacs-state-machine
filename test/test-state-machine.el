@@ -270,7 +270,7 @@
         (expect (state-machine-current-state --sm)
                 :to-be (state-machine-initial-state --sm))))
 
-    (it "Returns nil, if exciting was failed"
+    (it "Returns t, if exciting wasn't failed and wasn't completed"
       (let ((--sm (state-machine-create)))
         (state-machine-add --sm '(1 2) nil :end)
         (expect (state-machine-excite --sm 3)
@@ -282,7 +282,7 @@
         (expect (state-machine-excite --sm 1)
                 :to-be t)
         (expect (state-machine-excite --sm 2)
-                :to-be t)))
+                :to-be nil)))
     )
 
   (describe "state-machine-prefix-p"
