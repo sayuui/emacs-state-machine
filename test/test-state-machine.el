@@ -272,7 +272,7 @@
 
     (it "Returns t, if exciting wasn't failed and wasn't completed"
       (let ((--sm (state-machine-create)))
-        (state-machine-add --sm '(1 2) nil :end)
+        (state-machine-add --sm '(1 2 3) nil :end)
         (expect (state-machine-excite --sm 3)
                 :to-be nil)
         (expect (state-machine-excite --sm 1)
@@ -282,6 +282,8 @@
         (expect (state-machine-excite --sm 1)
                 :to-be t)
         (expect (state-machine-excite --sm 2)
+                :to-be t)
+        (expect (state-machine-excite --sm 3)
                 :to-be nil)))
     )
 
