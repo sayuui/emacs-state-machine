@@ -177,7 +177,6 @@
 
     (it "Can replace state if it's already exists"
       (let* ((--sm       (state-machine-create))
-             (--sync     0)
              (--lambda-1 (lambda ()
                            (setq --sync 1)))
              (--lambda-2 (lambda ()
@@ -190,11 +189,8 @@
                            '(1 2 3)
                            --lambda-2
                            :end)
-        (state-machine-excite --sm 1)
-        (state-machine-excite --sm 2)
-        (state-machine-excite --sm 3)
-        (expect --sync
-                :to-be 2))))
+        (expect (state-machine-state-callable (state-machine-get --sm '(1 2 3)))
+                :to-be --lambda-2))))
 
   (describe "state-machine-current-state"
     (it "Raises an error if first arg is not a state"
@@ -233,7 +229,7 @@
                     (state-machine-get sm '(1 2 3 4)))
                 :to-be t)))
 
-    (it "When end state is achieved, calls its' callable."
+    (it "When end state is achieved, don't call its' callable."
       (let* ((--sync   nil)
              (--sm     (state-machine-create))
              (--lambda (lambda ()
@@ -242,7 +238,7 @@
         (state-machine-excite --sm 1)
         (state-machine-excite --sm 2)
         (expect --sync
-                :to-be t)))
+                :to-be nil)))
 
     (it "When end state is achieved, changes current state to its' fallback state"
       (let ((--sm (state-machine-create)))
@@ -270,21 +266,32 @@
         (expect (state-machine-current-state --sm)
                 :to-be (state-machine-initial-state --sm))))
 
-    (it "Returns t, if exciting wasn't failed and wasn't completed"
-      (let ((--sm (state-machine-create)))
-        (state-machine-add --sm '(1 2 3) nil :end)
-        (expect (state-machine-excite --sm 3)
-                :to-be nil)
-        (expect (state-machine-excite --sm 1)
-                :to-be t)
-        (expect (state-machine-excite --sm 4)
-                :to-be nil)
-        (expect (state-machine-excite --sm 1)
-                :to-be t)
-        (expect (state-machine-excite --sm 2)
-                :to-be t)
-        (expect (state-machine-excite --sm 3)
-                :to-be nil)))
+    (describe "Returns"
+      (it "nil when exciting was failed"
+        (let ((--sm (state-machine-create)))
+          (state-machine-add --sm '(1) nil :end)
+          (expect (state-machine-excite --sm 3)
+                  :to-be nil)
+          ))
+
+      (it "associated symbol when exciting was completed"
+        (let ((--sm (state-machine-create)))
+          (state-machine-add --sm '(q) 'ignore :end)
+          (state-machine-add --sm '(w) #'ignore :end)
+          (expect (state-machine-excite --sm 'q)
+                  :to-be 'ignore)
+          (expect (state-machine-excite --sm 'w)
+                  :to-be 'ignore)
+          ))
+
+      (it "t when exciting wasn't failed and wasn't completed"
+        (let ((--sm (state-machine-create)))
+          (state-machine-add --sm '(1 2 3) nil :end)
+          (expect (state-machine-excite --sm 1)
+                  :to-be t)
+          (expect (state-machine-excite --sm 2)
+                  :to-be t)))
+      )
     )
 
   (describe "state-machine-prefix-p"

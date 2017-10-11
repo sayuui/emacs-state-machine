@@ -152,12 +152,11 @@ Returns t if next state is not nil and is not an end state."
               (progn
                 (setf (nth 2 state-machine) --state)
                 t)
-            (state-machine-state-call --state)
             (setq --initial-state (state-machine-state-fallback --state))
             (unless --initial-state
               (setq --initial-state (state-machine-initial-state state-machine)))
             (setf (nth 2 state-machine) --initial-state)
-            nil))
+            (state-machine-state-callable --state)))
       (setf (nth 2 state-machine)
             (state-machine-initial-state state-machine))
       nil)))
